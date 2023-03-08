@@ -4,7 +4,6 @@
 #include <stdint-gcc.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <bits/types/time_t.h>
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
