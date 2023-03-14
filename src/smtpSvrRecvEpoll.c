@@ -33,8 +33,8 @@ void smtpWaitAsync(int server_fd) {
                 pthread_mutex_lock ( &g_epoll_lock ) ;
                 epoll_ctl(epoll_fd, EPOLL_CTL_ADD, session->sock_fd, &init_event);
                 pthread_mutex_unlock ( &g_epoll_lock ) ;
-                LOG (LOG_INF, "%s : SMTP Connection created : fd = %d, session_id=%s\n", __func__, session->sock_fd,
-                     session->session_id);
+                LOG (LOG_INF, "%s : %sSMTP Connection created%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML,
+                     session->sock_fd, session->session_id);
                 sendGreetingMessage(session);
             } else {
                 session = events[i].data.ptr;
@@ -65,7 +65,7 @@ void *H_SERVER_EPOLL_WORK_TH(void *args) {
         }
 
         if ((nLine = smtpReadLine(session->sock_fd, buf, sizeof(buf))) <= 0) {
-            LOG (LOG_INF, "%s : SMTP Connection closed : fd = %d, session_id=%s\n", __func__, session->sock_fd,
+            LOG (LOG_INF, "%s : %sSMTP Connection closed%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML, session->sock_fd,
                  session->session_id);
             delSmtpSession(session->session_id);
             continue;

@@ -37,7 +37,7 @@ void *H_SERVER_RECV_FDSET_TH(void *args) {
     pthread_detach(pthread_self());
 
     sock_fd = session->sock_fd;
-    LOG (LOG_INF, "%s : SMTP Connection created : fd = %d, session_id=%s\n", __func__, sock_fd, session->session_id);
+    LOG (LOG_INF, "%s : %sSMTP Connection created%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML, sock_fd, session->session_id);
     sendGreetingMessage(session);
     while (!g_sys_close) {
         FD_ZERO (&read_fd_set);

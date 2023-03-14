@@ -92,7 +92,7 @@ int onSmtpRcptTo(smtp_session_t  * session, char * line) {
 
 int doSmtpDispatch(smtp_session_t  * session, char * line) {
     int nErr = -1;
-    LOG(LOG_DBG, "recv <-- %s", line);
+    LOG(LOG_DBG, "%srecv%s <-- %s", C_GREN, C_NRML, line);
 
     if (session->smtp_status == SMTP_STATUS_READY) {
         session->smtp_last_message = detectSmtpCommand(line);

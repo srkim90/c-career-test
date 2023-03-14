@@ -158,7 +158,7 @@ size_t smtpReadLine(int sock_fd, char *p_data, size_t sz_buf) {
 int smtpSendData(int sock_fd, void *p_data, size_t n_length) {
     char *wp = NULL;
 
-    LOG(LOG_DBG, "send --> %s", (char *)p_data);
+    LOG(LOG_DBG, "%ssend%s --> %s", C_RED, C_NRML, (char *)p_data);
 
     size_t n_left;
     ssize_t n_written;

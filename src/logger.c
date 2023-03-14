@@ -51,5 +51,5 @@ void smtpLog (int log_lv, int line, const char * file_name, const char * fmttxt,
         strcat(buf, "\n");
     }
 
-    printf("%s[%s:%d]: %s", getLocalTime(local_time, sizeof(local_time)), getFileName(file_name), line, buf);
+    printf("%s[%-20s:%-6d]: %s", getLocalTime(local_time, sizeof(local_time)), getFileName(file_name), line, buf);
 }
