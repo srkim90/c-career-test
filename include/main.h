@@ -15,6 +15,7 @@
 #include <malloc.h>
 
 #include "logger.h"
+#include "smtpTps.h"
 #include "smtpData.h"
 #include "smtpSession.h"
 #include "smtpSock.h"

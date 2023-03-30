@@ -19,20 +19,23 @@ int main() {
     int server_fd;
 
     /* 1. Initialize log */
-    setLogLevel(LOG_DBG);
+    setLogLevel(LOG_INF);
 
     /* 2. Initialize Server socket */
     if ((server_fd = smtpServerOpen(SMTP_PORT)) <= 0) {
         LOG(LOG_CRT, "Error: Server socket initialization failed");
     }
 
-    /* 3. Start smtp service based on socket type */
+    /* 3. Initialize TPS Threads */
+    smtpStartTPSThreads();
+
+    /* 4. Start smtp service based on socket type */
 #if USE_EPOLL_WAIT
-    // 3.1 : Asynchronous implementation using epoll
+    // 4.1 : Asynchronous implementation using epoll
     smtpStartWorkThreads(MAX_ASYNC_WORKS_TH);
     smtpWaitAsync(server_fd);
 #else
-    // 3.2 : Synchronous implementation using select
+    // 4.2 : Synchronous implementation using select
     smtpWaitSync(server_fd);
 #endif
     return 0;

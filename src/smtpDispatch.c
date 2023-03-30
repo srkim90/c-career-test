@@ -3,6 +3,7 @@
 int sendGreetingMessage(smtp_session_t  * session) {
     const char * message = "220 tmse.daou.co.kr ESMTP TERRACE MAIL Security EE 1.2.2 2022-5\r\n";
     smtpSendData(session->sock_fd, (void *)message, strlen(message));
+    inc_smtp_message_send();
     return 0;
 }
 
@@ -93,6 +94,7 @@ int onSmtpRcptTo(smtp_session_t  * session, char * line) {
 int doSmtpDispatch(smtp_session_t  * session, char * line) {
     int nErr = -1;
     LOG(LOG_DBG, "%srecv%s <-- %s", C_GREN, C_NRML, line);
+    inc_smtp_message_recv();
 
     if (session->smtp_status == SMTP_STATUS_READY) {
         session->smtp_last_message = detectSmtpCommand(line);

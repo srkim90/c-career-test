@@ -1,9 +1,9 @@
 #include "main.h"
 #include <sys/epoll.h>
 
-#define EPOLL_SIZE 1024
+#define EPOLL_SIZE 10240
 int epoll_fd;
-//pthread_mutex_t g_epoll_lock = PTHREAD_MUTEX_INITIALIZER; // 과제 2.1 - 제거 파트
+pthread_mutex_t g_epoll_lock = PTHREAD_MUTEX_INITIALIZER; // 과제 2.1 - 제거 파트
 
 /* 과제 2.1 :
  *
@@ -33,22 +33,23 @@ void smtpWaitAsync(int server_fd) {
 
             if (events[i].data.fd == server_fd) {
                 if ((session = smtpHandleInboundConnection(server_fd)) == NULL) {
+                    LOG(LOG_INF, "fail : smtpHandleInboundConnection, server_fd=%d", server_fd);
                     break;
                 }
                 init_event.events = EPOLLIN;
                 init_event.data.fd = session->sock_fd;
                 init_event.data.ptr = (void *) session;
-                //pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
-                epoll_ctl(epoll_fd, EPOLL_CTL_ADD, session->sock_fd, &init_event);
-                //pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
-                LOG (LOG_INF, "%s : %sSMTP Connection created%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML,
-                     session->sock_fd, session->session_id);
+                pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
                 sendGreetingMessage(session);
+                epoll_ctl(epoll_fd, EPOLL_CTL_ADD, session->sock_fd, &init_event);
+                pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
+                LOG (LOG_DBG, "%s : %sSMTP Connection created%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML,
+                     session->sock_fd, session->session_id);
             } else {
                 session = events[i].data.ptr;
-                //pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
+                pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
                 epoll_ctl(epoll_fd, EPOLL_CTL_DEL, session->sock_fd, NULL);
-                //pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
+                pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
                 itcqPutSession(session);
             }
         }
@@ -73,7 +74,7 @@ void *H_SERVER_EPOLL_WORK_TH(void *args) {
         }
 
         if ((nLine = smtpReadLine(session->sock_fd, buf, sizeof(buf))) <= 0) {
-            LOG (LOG_INF, "%s : %sSMTP Connection closed%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML,
+            LOG (LOG_DBG, "%s : %sSMTP Connection closed%s : fd = %d, session_id=%s\n", __func__, C_YLLW, C_NRML,
                  session->sock_fd,
                  session->session_id);
             /* 과제 2.2 :
@@ -81,7 +82,7 @@ void *H_SERVER_EPOLL_WORK_TH(void *args) {
              * 내부 구현은 제거 된 상태여서 할당 된 자원이 회수 되지 않고 있습니다.
              * 적절한 로직을 넣어 SMTP 연결에 할당된 자원을 회수 하시오
              */
-            // delSmtpSession(session->session_id);
+            delSmtpSession(session->session_id);
             continue;
         }
 
@@ -91,7 +92,7 @@ void *H_SERVER_EPOLL_WORK_TH(void *args) {
             }
             continue;
         }
-        //pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
+        pthread_mutex_lock(&g_epoll_lock); // 과제 2.1 - 제거 파트
         init_event.events = EPOLLIN;
         init_event.data.fd = session->sock_fd;
         init_event.data.ptr = (void *) session;
@@ -110,7 +111,7 @@ void *H_SERVER_EPOLL_WORK_TH(void *args) {
  * */
         epoll_ctl(epoll_fd, EPOLL_CTL_ADD, session->sock_fd, &init_event);
         /* 과제 2.3 end */
-        //pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
+        pthread_mutex_unlock(&g_epoll_lock); // 과제 2.1 - 제거 파트
 
     }
     return NULL;

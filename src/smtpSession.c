@@ -19,7 +19,7 @@ int hash_func(const char *string, size_t len) {
 void delSmtpSession(char *session_id) {
     int hash_id = hash_func(session_id, strlen(session_id));
     int start_index = hash_id % BUCKET_SIZE;
-    int i = 0;
+    int i = start_index;
     pthread_mutex_lock ( &g_session_lock ) ;
     do {
         if(g_smtp_sessions[i] != NULL) {
@@ -29,6 +29,7 @@ void delSmtpSession(char *session_id) {
                 free(session);
                 g_smtp_sessions[i] = NULL;
                 pthread_mutex_unlock ( &g_session_lock ) ;
+                inc_smtp_tps_tcp_close();
                 return;
             }
         }
@@ -40,7 +41,7 @@ void delSmtpSession(char *session_id) {
 smtp_session_t *getSmtpSession(char *session_id) {
     int hash_id = hash_func(session_id, strlen(session_id));
     int start_index = hash_id % BUCKET_SIZE;
-    int i = 0;
+    int i = start_index;
     pthread_mutex_lock ( &g_session_lock ) ;
     do {
         if(g_smtp_sessions[i] != NULL) {

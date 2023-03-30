@@ -1,0 +1,3 @@
+/home/mailadm/tmp/c-career-test/CMakeFiles/career_test3.dir
+/home/mailadm/tmp/c-career-test/CMakeFiles/edit_cache.dir
+/home/mailadm/tmp/c-career-test/CMakeFiles/rebuild_cache.dir

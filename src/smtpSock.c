@@ -29,12 +29,14 @@ smtp_session_t *smtpHandleInboundConnection(int server_fd) {
         client_fd = -1;
         return NULL;
     }
+    inc_smtp_tps_tcp_connect();
 
     session = (smtp_session_t *) malloc(sizeof(smtp_session_t));
     if (NULL == session) {
         close(client_fd);
         return NULL;
     }
+    memset(session, 0x00, sizeof(smtp_session_t));
 
     session->sock_fd = client_fd;
     session->port_num = smtpGetPeerPortNum(client_fd);
@@ -159,6 +161,7 @@ int smtpSendData(int sock_fd, void *p_data, size_t n_length) {
     char *wp = NULL;
 
     LOG(LOG_DBG, "%ssend%s --> %s", C_RED, C_NRML, (char *)p_data);
+    inc_smtp_message_send();
 
     size_t n_left;
     ssize_t n_written;
